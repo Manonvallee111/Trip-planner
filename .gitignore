@@ -6,7 +6,7 @@ bin-release/
 
 # Other files and folders
 .settings/
-
+api_keys/
 # Executables
 *.swf
 *.air
