@@ -18,10 +18,9 @@ API_KEY = 'AIzaSyBuEH6ka2tFVp4P3zP6r5DRBoBQdTIpYOI'
 
 # In[495]:
 
-
-country = input("Enter a country or city name: ")
-
-
+with open("country.txt", "r") as f:
+    country = f.read()
+    
 # # Natural features
 
 # In[496]:
