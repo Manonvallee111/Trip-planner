@@ -131,6 +131,31 @@ def every_stop(waypoint_coord, destination_location, origin_location):
 
     return lines_coord
 
+def get_city_names(stop_coord):
+    cities = []
+    for stop in stop_coord:
+        city_location = client.places_nearby(stop, radius=20000, type='locality')['results'][0]['name']
+        cities.append(city_location)
+
+    city_names = []
+    city_coord = []
+    city_info = []
+    len(cities)
+
+    for name, coord in zip(cities, stop_coord):
+        dictionary1 = {'name': name}
+        city_names.append(dictionary1)
+
+        dictionary2 = {'location': coord}
+        city_coord.append(dictionary2)
+
+    for i in range(len(city_names)):
+            temp_dict = {}
+            temp_dict.update(city_names[i])
+            temp_dict.update(city_coord[i])
+            city_info.append(temp_dict)
+
+    return city_info
 ## Finding nearest hotels and restaurant based in each stopover
 
 def location_marker(stop_coord, type_location):
@@ -279,12 +304,25 @@ def landmarks(dest_country, query):
     return landmark_info
 
 ## Generate the map, with the main route and the stopover, including hotels and restaurants for each stop.
-def main_route(origin_location, destination_location, waypoint_coord, hotel_markers, rest_markers, natural_markers, route_markers, park_markers, landmark_markers, tourism_markers):
-    fig = gmaps.figure()
+def main_route(origin_location, destination_location, waypoint_coord, hotel_markers, rest_markers, natural_markers, route_markers, park_markers, landmark_markers, tourism_markers, city_names):
+    fig = gmaps.figure(center=origin_location, zoom_level=7)
 
     main = gmaps.directions_layer(origin_location, destination_location, waypoints=waypoint_coord)
 
     route_markers = gmaps.symbol_layer(route_markers, fill_color='#00BFFF', stroke_color='#00BFFF',  scale=2)
+
+    ###########################
+
+    city_location = [city['location'] for city in city_names]
+    info_box_template = """
+    <dl>
+    <dt>City</dt><dd>{name}</dd>
+    </dl>
+    """
+    info_city = [info_box_template.format(**city) for city in city_names]
+    stop_pins = gmaps.marker_layer(city_location, hover_text='City', info_box_content=info_city)
+
+    ###########################
 
     hotel_location = [hotel['location'] for hotel in hotel_markers]
     info_box_template = """
@@ -360,13 +398,14 @@ def main_route(origin_location, destination_location, waypoint_coord, hotel_mark
 
     ###########################
 
-    fig.add_layer(main)
-    fig.add_layer(route_markers)
+#     fig.add_layer(main)
     fig.add_layer(hotel_markers)
     fig.add_layer(rest_markers)
+    fig.add_layer(route_markers)
     fig.add_layer(natural_markers)
     fig.add_layer(park_markers)
-    fig.add_layer(landmark_markers)
     fig.add_layer(attraction_markers)
+    fig.add_layer(landmark_markers)
+    fig.add_layer(stop_pins)
 
     return fig
